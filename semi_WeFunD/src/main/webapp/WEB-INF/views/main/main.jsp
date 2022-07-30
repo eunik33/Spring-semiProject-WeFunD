@@ -116,8 +116,6 @@
 </head>
 <body>
 	<%@ include file="../common/header2.jsp" %>
-	
-adfasdfasdfasfafssafdasdf 123
     
 	<br><br><br><br><br><br><br><br><br><br>
     
