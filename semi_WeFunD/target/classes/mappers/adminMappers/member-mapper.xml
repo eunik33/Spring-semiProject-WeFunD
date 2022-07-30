@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="adminMemberMapper">
+
+
+	<resultMap type="adminMember" id="MemberResultSet">
+		<result column="USER_NO" property="userNo" />
+		<result column="USER_ID" property="userId" />
+		<result column="USER_PWD" property="userPwd" />
+		<result column="USER_NAME" property="userName" />
+		<result column="NICKNAME" property="nickname" />
+		<result column="PHONE" property="phone" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="MODIFY_DATE" property="modifyDate" />
+		<result column="STATUS" property="status" />
+	</resultMap>
+	
+	<resultMap type="adminReview" id="ReviewResultSet">				
+		<result column="USER_NO" property="reviewNo" />             
+		<result column="USER_ID" property="reviewWriter" />  
+		<result column="USER_PWD" property="supportNo" />    
+		<result column="USER_NAME" property="reviewTitle" /> 
+		<result column="NICKNAME" property="reviewContent" />
+		<result column="PHONE" property="rate" />            
+		<result column="ENROLLDATE" property="count" />      
+		<result column="MODIFYDATE" property="reviewDate" /> 
+		<result column="STATUS" property="status" />		
+	</resultMap>     
+	
+		<resultMap type="adminReport" id="ReportResultSet">				
+			<result column="REPLY_NO" property="replyNo" />                 
+			<result column="REVIEW_TITLE" property="reviewTitle" />             
+			<result column="M2" property="replyWriter" />            
+			<result column="REPLY_DATE" property="replyDate" />             
+			<result column="REPLY_CONTENT" property="replyContent" />           
+			<result column="M1" property="replyReporter" />             
+			<result column="REPORT_DATE" property="reportDate" />           
+			<result column="REVIEW_NO" property="reviewNo" />             
+		</resultMap>                               
+
+	<select id="listCountMember" resultType="_int">
+		SELECT COUNT(*) COUNT
+		  FROM MEMBER
+		 WHERE STATUS ='Y'
+	</select>
+
+	<select id="selectListMember" resultMap="MemberResultSet">
+		SELECT USER_NO, USER_ID, USER_PWD, USER_NAME, NICKNAME, PHONE, ENROLL_DATE, MODIFY_DATE
+		  FROM MEMBER
+		 WHERE STATUS = 'Y'
+		 ORDER BY USER_NO DESC
+	</select>
+
+	<select id="withdrawalListCountMember" resultType="_int">
+		SELECT COUNT(*) COUNT
+		  FROM MEMBER
+		 WHERE STATUS ='N'
+	</select>
+	
+	<select id="selectWithdrawalListMember" resultMap="MemberResultSet">
+		SELECT USER_NO,
+			   USER_ID,
+			   USER_PWD,
+			   USER_NAME,
+			   NICKNAME, 
+			   PHONE, 
+			   ENROLL_DATE, 
+			   MODIFY_DATE
+		  FROM MEMBER
+		 WHERE STATUS = 'N'
+		 ORDER BY USER_NO DESC
+	</select>
+	
+	<update id="restorationMember">
+		UPDATE MEMBER
+		   SET STATUS = 'Y', MODIFY_DATE = SYSDATE
+		 WHERE USER_NO = #{userNo}
+	</update>
+
+	<select id="selectListReportMember" resultMap="ReportResultSet">
+		SELECT R.REPLY_NO, REVIEW_TITLE, M2.NICKNAME M2, REPLY_DATE, REPLY_CONTENT, M1.NICKNAME M1, REPORT_DATE, RV.REVIEW_NO
+		  FROM REPLY R, REPORT RP , REVIEW RV , MEMBER M1, MEMBER M2
+		 WHERE RP.REPLY_NO = R.REPLY_NO
+		   AND R.REVIEW_NO = RV.REVIEW_NO
+		   AND RP.REPLY_REPORTER = M1.USER_NO
+		   AND R.REPLY_WRITER = M2.USER_NO
+		   AND R.STATUS = 'R'
+		 ORDER BY REPORT_DATE DESC
+	</select>
+
+	<update id="suspensionMember">
+		UPDATE MEMBER
+		   SET STATUS ='N',MODIFY_DATE=SYSDATE
+		 WHERE NICKNAME = #{nickname}
+	</update>
+
+	<update id="checkMember">
+		UPDATE REPLY
+		   SET STATUS ='Y'
+		 WHERE REPLY_NO = #{replyNo}
+	</update>
+
+	<update id="replystatusN">
+		UPDATE REPLY
+		   SET STATUS ='N'
+		 WHERE REPLY_NO = #{replyNo}
+	</update>
+	<select id="selectSearchCount" resultType="_int" parameterType="hashmap">
+		SELECT 
+			   COUNT(*)
+		  FROM 
+		       MEMBER
+		 WHERE STATUS = 'Y'
+		 <choose>
+			 <when test="condition == 'userName'">
+			 	AND USER_NAME 
+			 </when>
+			 <when test="condition == 'nickname'">
+			 	AND NICKNAME
+			 </when>
+			 <when test="condition == 'phone'">
+			 	AND PHONE
+			 </when>
+			 <otherwise>
+			 	AND USER_ID
+			 </otherwise>
+		 </choose>
+		  LIKE '%' || #{keyword} || '%' 
+	</select>
+	<select id="selectSearchList" resultMap="MemberResultSet" parameterType="hashmap">
+		SELECT 
+			   USER_NO, USER_ID, USER_PWD, USER_NAME, NICKNAME, PHONE, ENROLL_DATE, MODIFY_DATE
+		  FROM 
+		       MEMBER 
+		 WHERE STATUS = 'Y'
+		 <choose>
+			 <when test="condition == 'userName'">
+			 	AND USER_NAME 
+			 </when>
+			 <when test="condition == 'nickname'">
+			 	AND NICKNAME
+			 </when>
+			 <when test="condition == 'phone'">
+			 	AND PHONE
+			 </when>
+			 <otherwise>
+			 	AND USER_ID
+			 </otherwise>
+		 </choose>
+		  	   LIKE '%' || #{keyword} || '%' 
+		  ORDER BY USER_NO DESC  
+	</select>
+	
+	
+	<select id="selectWRSearchCount" resultType="_int" parameterType="hashmap">
+		SELECT 
+			   COUNT(*)
+		  FROM 
+		       MEMBER
+		 WHERE STATUS = 'N'
+		 <choose>
+			 <when test="condition == 'userName'">
+			 	AND USER_NAME 
+			 </when>
+			 <when test="condition == 'nickname'">
+			 	AND NICKNAME
+			 </when>
+			 <when test="condition == 'phone'">
+			 	AND PHONE
+			 </when>
+			 <otherwise>
+			 	AND USER_ID
+			 </otherwise>
+		 </choose>
+		  LIKE '%' || #{keyword} || '%' 
+	</select>
+	
+	<select id="selectWRSearchList" resultMap="MemberResultSet" parameterType="hashmap">
+		SELECT 
+			   USER_NO, USER_ID, USER_PWD, USER_NAME, NICKNAME, PHONE, ENROLL_DATE, MODIFY_DATE
+		  FROM 
+		       MEMBER 
+		 WHERE STATUS = 'N'
+		 <choose>
+			 <when test="condition == 'userName'">
+			 	AND USER_NAME 
+			 </when>
+			 <when test="condition == 'nickname'">
+			 	AND NICKNAME
+			 </when>
+			 <when test="condition == 'phone'">
+			 	AND PHONE
+			 </when>
+			 <otherwise>
+			 	AND USER_ID
+			 </otherwise>
+		 </choose>
+		  	   LIKE '%' || #{keyword} || '%' 
+		  ORDER BY USER_NO DESC  
+	</select>
+
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="qnaMapper">
+
+	<resultMap id="qnaResultSet" type="qna">
+		<result column="QNA_NO" property="qnaNo" />
+		<result column="NICKNAME" property="qnaWriter" />
+		<result column="QNA_TITLE" property="qnaTitle" />
+		<result column="QNA_CONTENT" property="qnaContent" />
+		<result column="QNA_DATE" property="qnaDate" />
+		<result column="ANSWER" property="answer" />
+		<result column="ANSWER_DATE" property="answerDate" />
+	</resultMap>
+	
+	<select id="selectListCount" resultType="_int">
+	    SELECT
+	    	   COUNT(*) COUNT
+          FROM 
+          	   QNA
+         WHERE
+          	   STATUS='Y'
+	</select>
+	
+	<select id="selectQnaList" resultMap="qnaResultSet">
+		SELECT 
+			   QNA_NO,
+			   NICKNAME,
+			   QNA_TITLE,
+			   TO_CHAR(QNA_DATE, 'YYYY-MM-DD') AS QNA_DATE,
+			   ANSWER 
+		  FROM 
+		       QNA Q 
+		  JOIN 
+		       MEMBER ON (QNA_WRITER = USER_NO) 
+		 WHERE 
+		       Q.STATUS = 'Y' 
+		 ORDER BY 
+		       QNA_NO DESC
+	</select>
+	
+	<insert id="insertQna" parameterType="qna">
+		INSERT
+		  INTO 
+		       QNA
+		       (
+		       QNA_NO,
+		       QNA_WRITER,
+		       QNA_TITLE,
+		       QNA_CONTENT
+		       )
+		VALUES (
+			   SEQ_QNO.NEXTVAL,
+			   #{qnaWriter},
+			   #{qnaTitle},
+			   #{qnaContent}
+			   )
+	</insert>
+	
+	<select id="selectQna" parameterType="_int" resultMap="qnaResultSet">
+		SELECT 
+			   QNA_NO,
+			   NICKNAME,
+               QNA_TITLE,
+               QNA_CONTENT,
+			   QNA_DATE,
+               ANSWER,
+               ANSWER_DATE
+		  FROM 
+		  	   QNA Q 
+		  JOIN 
+		  	   MEMBER ON(QNA_WRITER = USER_NO) 
+		 WHERE 
+		 	   QNA_NO = #{qnaNo}
+	</select>
+	
+	<update id="updateQna" parameterType="qna">
+		UPDATE
+			   QNA 
+		   SET
+			   QNA_TITLE = #{qnaTitle},
+			   QNA_CONTENT=#{qnaContent} 
+		 WHERE 
+		 	   QNA_NO = #{qnaNo}
+		   AND
+		   	   STATUS = 'Y'
+	</update>
+	
+	<update id="deleteQna" parameterType="_int">
+		UPDATE
+			   QNA 
+		   SET
+			   STATUS = 'N' 
+		 WHERE 
+		 	   QNA_NO = #{qnaNo}
+	</update>
+	
+	<insert id="insertAnswer" parameterType="qna">
+		UPDATE
+			   QNA 
+		   SET
+			   ANSWER = #{answer},
+			   ANSWER_DATE = SYSDATE
+		 WHERE 
+		 	   QNA_NO = #{qnaNo}
+	</insert>
+	
+	<update id="updateAnswer" parameterType="qna">
+		UPDATE
+			   QNA 
+		   SET
+			   ANSWER = #{answer}
+		 WHERE 
+		 	   QNA_NO = #{qnaNo}
+	</update>
+</mapper>

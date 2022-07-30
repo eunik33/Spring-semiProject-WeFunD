@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.kh.wefund.admin.adminSales.model.vo.Sales" alias="sales" />
+		<typeAlias type="com.kh.wefund.category.model.vo.Category" alias="Category" />
+		<typeAlias type="com.kh.wefund.member.model.vo.Member" alias="member" />
+		<typeAlias type="com.kh.wefund.mypage.model.vo.Likes" alias="likes" />
+		<typeAlias type="com.kh.wefund.notice.model.vo.Notice" alias="notice" />
+		<typeAlias type="com.kh.wefund.project.model.vo.Product" alias="product" />
+		<typeAlias type="com.kh.wefund.project.model.vo.Project" alias="project" />
+		<typeAlias type="com.kh.wefund.project.model.vo.ProjectAttachment" alias="projectAttachment" />
+		<typeAlias type="com.kh.wefund.project.model.vo.Support" alias="support" />
+		<typeAlias type="com.kh.wefund.qna.model.vo.Qna" alias="qna" />
+		<typeAlias type="com.kh.wefund.review.model.vo.Review" alias="review" />
+		<typeAlias type="com.kh.wefund.review.model.vo.ReviewAttachment" alias="reviewAttachment" />
+		<typeAlias type="com.kh.wefund.review.model.vo.Reply" alias="reply" />
+		<typeAlias type="com.kh.wefund.review.model.vo.Report" alias="report" />
+	</typeAliases>
+	<!-- 유의사항 : 미리 등록해두려면 해당 클래스가 진짜 존재하고 잇는 상태여야함 -->
+	
+	 
+	<mappers>
+        <mapper resource="/mappers/adminMappers/qna-mapper.xml" />
+        <mapper resource="/mappers/adminMappers/notice-mapper.xml" />
+        <mapper resource="/mappers/adminMappers/project-mapper.xml" />
+        <mapper resource="/mappers/adminMappers/review-mapper.xml" />
+        <mapper resource="/mappers/adminMappers/sales-mapper.xml" />
+        <mapper resource="/mappers/adminMappers/member-mapper.xml" />	
+		<mapper resource="/mappers/category-mapper.xml" />
+		<mapper resource="/mappers/main-mapper.xml" />
+		<mapper resource="/mappers/member-mapper.xml" />
+		<mapper resource="/mappers/myPage-mapper.xml" />
+		<mapper resource="/mappers/notice-mapper.xml" />
+		<mapper resource="/mappers/project-mapper.xml" />
+		<mapper resource="/mappers/qna-mapper.xml" />
+		<mapper resource="/mappers/review-mapper.xml" />
+	</mappers>
+	 <!-- 유의사항 : 미리 등록해두려면 해당 mapper파일이 진짜 존재하고 있어야함!!!(namespace까지!!) -->
+</configuration>

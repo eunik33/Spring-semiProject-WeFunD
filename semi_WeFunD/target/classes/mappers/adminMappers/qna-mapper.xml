@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="adminQnaMapper">
+
+	<resultMap type="adminQna" id="qnaResultSet">
+		<result column="QNA_NO" property="qnaNo"/>
+		<result column="QNA_TITLE" property="qnaTitle"/>
+		<result column="NICKNAME" property="qnaWriter"/>
+		<result column="QNA_DATE" property="qnaDate"/>
+		<result column="ANSWER" property="answer"/>
+		<result column="QNA_CONTENT" property="qnaContent"/>
+	</resultMap>
+
+	<select id="selectCountQna" resultType="_int" >
+		SELECT COUNT(*) COUNT
+		  FROM QNA
+		 WHERE STATUS = 'Y'
+	</select>
+	
+	<select id="selectlistQna" resultMap="qnaResultSet">
+		SELECT QNA_NO,QNA_TITLE,NICKNAME,QNA_DATE,ANSWER         	   
+	      FROM QNA Q 
+	      JOIN MEMBER ON(QNA_WRITER = USER_NO)
+	     WHERE Q.STATUS = 'Y'
+	     ORDER BY QNA_DATE DESC    
+	</select>
+	
+	<select id="selectSearchCount" resultType="_int" parameterType="hashmap">
+		SELECT 
+			   COUNT(*)
+		  FROM 
+		       QNA Q
+		  JOIN MEMBER ON (QNA_WRITER = USER_NO)
+		 WHERE Q.STATUS = 'Y'
+		 <choose>
+			 <when test="condition == 'qnaWriter'">
+			   AND NICKNAME 
+			 </when>
+			 <when test="condition == 'qnaContent'">
+			   AND QNA_CONTENT
+			 </when>
+			 <otherwise>
+			 	AND QNA_TITLE
+			 </otherwise>
+		 </choose>
+		  LIKE '%' || #{keyword} || '%' 
+	</select>
+	
+	<select id="selectSearchList" resultMap="qnaResultSet" parameterType="hashmap">
+		SELECT 
+			   QNA_NO,QNA_TITLE,NICKNAME,QNA_DATE,ANSWER
+		  FROM 
+		       QNA Q
+		  JOIN MEMBER ON (QNA_WRITER = USER_NO)
+		 WHERE Q.STATUS = 'Y'
+		 <choose>
+			 <when test="condition == 'qnaWriter'">
+			 	AND NICKNAME 
+			 </when>
+			 <when test="condition == 'qnaContent'">
+			 	AND QNA_CONTENT
+			 </when>
+			 <otherwise>
+			 	AND QNA_TITLE
+			 </otherwise>
+		 </choose>
+		  	   LIKE '%' || #{keyword} || '%' 
+		  ORDER BY QNA_DATE DESC  
+	</select>
+	
+
+
+</mapper>

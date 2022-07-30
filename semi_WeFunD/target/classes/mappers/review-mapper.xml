@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="reviewMapper">
+
+	<resultMap id="reviewResultSet" type="review">
+		<result column="REVIEW_NO" property="reviewNo" />
+		<result column="NICKNAME" property="reviewWriter" />
+		<result column="SUPPORT_NO" property="supportNo" />
+		<result column="REVIEW_TITLE" property="reviewTitle" />
+		<result column="REVIEW_CONTENT" property="reviewContent" />
+		<result column="RATE" property="rate" />
+		<result column="COUNT" property="count" />
+		<result column="REVIEW_DATE" property="reviewDate" />
+		<result column="PROJECT_NO" property="projectNo" />
+		<result column="PROJECT_NAME" property="projectName" />
+		<result column="PROJECT_THUMBNAIL" property="projectThumbnail" />
+		<result column="REVIEW_IMG" property="reviewImg" />
+	</resultMap>
+	
+	<resultMap id="supportResultSet" type="rv_support">
+		<result column="SUPPORT_NO" property="supportNo" />
+		<result column="PROJECT_NO" property="projectNo" />
+		<result column="SUPPORT_DATE" property="supportDate" />
+		<result column="PROJECT_NAME" property="projectName" />
+	</resultMap>
+	
+	<resultMap id="reviewAttachmentResultSet" type="reviewAttachment">
+		<result column="FILE_NO" property="fileNo" />
+		<result column="ORIGIN_NAME" property="originName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="FILE_PATH" property="filePath" />
+	</resultMap>
+	
+	<resultMap id="replyResultSet" type="reply">
+		<result column="REPLY_NO" property="replyNo" />
+		<result column="NICKNAME" property="replyWriter" />
+		<result column="REPLY_CONTENT" property="replyContent" />
+		<result column="REPLY_DATE" property="replyDate" />
+	</resultMap>
+	
+	<select id="selectListCount" resultType="_int">
+	    SELECT
+	    	   COUNT(*) COUNT
+          FROM 
+          	   REVIEW
+         WHERE
+          	   STATUS='Y'
+	</select>
+	
+	<select id="selectReviewList" resultMap="reviewResultSet">
+		SELECT 
+   			   REVIEW_NO,
+   			   NICKNAME,
+   			   SUPPORT_NO,
+   			   REVIEW_TITLE,
+   			   RATE,
+   			   R.COUNT,
+   			   TO_CHAR(REVIEW_DATE, 'YYYY-MM-DD') AS REVIEW_DATE,
+   			   PROJECT_NO,
+   			   PROJECT_NAME,
+   			   CONCAT(PA.FILE_PATH,PA.CHANGE_NAME) PROJECT_THUMBNAIL,
+               REVIEW_IMG 
+         FROM 
+               REVIEW R
+               JOIN MEMBER ON (REVIEW_WRITER = USER_NO)
+               JOIN SUPPORT USING(SUPPORT_NO)
+         JOIN  PROJECT USING(PROJECT_NO)
+         JOIN  PROJECT_ATTACHMENT PA USING(PROJECT_NO)
+    LEFT JOIN (SELECT REVIEW_NO, CONCAT(FILE_PATH,CHANGE_NAME) REVIEW_IMG
+                 FROM REVIEW_ATTACHMENT
+                WHERE STATUS='Y') USING(REVIEW_NO)
+        WHERE
+               FILE_LEVEL = 1
+          AND 
+          	   R.STATUS = 'Y'
+     ORDER BY 
+     		   REVIEW_NO DESC
+	</select>
+	
+	<select id="selectUserSupportList" parameterType="_int" resultMap="supportResultSet">
+		SELECT
+			   SUPPORT_NO, PROJECT_NO, SUPPORT_DATE, PROJECT_NAME
+		  FROM 
+		  	   SUPPORT S
+		  JOIN 
+		  	   PROJECT USING(PROJECT_NO)
+		 WHERE 
+		 	   USER_NO = #{userNo}
+           AND 
+               SUPPORT_NO NOT IN(SELECT SUPPORT_NO
+                                   FROM REVIEW
+                                  WHERE REVIEW_WRITER = #{userNo}
+                                    AND STATUS = 'Y')
+           AND
+               S.STATUS = 'Y'
+      ORDER BY
+	  		   SUPPORT_DATE
+	</select>
+	
+	<insert id="insertReview" parameterType="review">
+		INSERT 
+		  INTO 
+		  	   REVIEW
+		  	   (
+		  	   REVIEW_NO,
+		  	   REVIEW_WRITER,
+		  	   SUPPORT_NO,
+		  	   REVIEW_TITLE,
+		  	   REVIEW_CONTENT,
+		  	   RATE
+		  	   )
+		VALUES
+			   (
+			   SEQ_RNO.NEXTVAL,
+			   #{reviewWriter},
+			   #{supportNo},
+			   #{reviewTitle},
+			   #{reviewContent},
+			   #{rate}
+			   )
+	</insert>
+	
+	<insert id="insertReviewAttachment" parameterType="reviewAttachment">
+		INSERT 
+		  INTO 
+		       REVIEW_ATTACHMENT
+		       (
+		       FILE_NO,
+		       REVIEW_NO,
+		       ORIGIN_NAME,
+		       CHANGE_NAME,
+		       FILE_PATH
+		       )
+		VALUES 
+		       (
+		       SEQ_RANO.NEXTVAL,
+		       SEQ_RNO.CURRVAL,
+		       #{originName},
+		       #{changeName},
+		       #{filePath}
+		       )
+	</insert>
+	
+	<update id="increaseCount" parameterType="_int">
+		UPDATE 
+			   REVIEW 
+		   SET
+		   	   COUNT = COUNT + 1 
+		 WHERE
+		 	   REVIEW_NO = #{reviewNo} 
+		   AND
+		 	   STATUS = 'Y'
+	</update>
+	
+	<select id="selectReview" parameterType="_int" resultMap="reviewResultSet">
+		SELECT 
+			   REVIEW_NO,
+			   NICKNAME,
+			   SUPPORT_NO,
+			   REVIEW_TITLE,
+			   REVIEW_CONTENT,
+			   RATE,
+			   R.COUNT,
+			   REVIEW_DATE,
+			   PROJECT_NO,
+			   PROJECT_NAME
+		  FROM 
+		  	   REVIEW R
+		  JOIN 
+		       MEMBER ON (REVIEW_WRITER = USER_NO)
+		  JOIN 
+		       SUPPORT USING(SUPPORT_NO)
+		  JOIN 
+		       PROJECT USING(PROJECT_NO)
+		 WHERE 
+		       REVIEW_NO = #{reviewNo}
+		   AND
+		       R.STATUS = 'Y'
+	
+	</select>
+	
+	<select id="selectReviewAttachment" parameterType="_int" resultMap="reviewAttachmentResultSet">
+		SELECT
+			   FILE_NO,
+			   ORIGIN_NAME,
+			   CHANGE_NAME,
+			   FILE_PATH
+		  FROM
+		 	   REVIEW_ATTACHMENT
+		 WHERE 
+		 	   REVIEW_NO = #{reviewNo}
+		   AND
+		       STATUS = 'Y'
+	</select>
+	
+	<update id="updateReview" parameterType="review">
+		UPDATE
+			   REVIEW
+		   SET
+		       REVIEW_TITLE = #{reviewTitle},
+		       REVIEW_CONTENT = #{reviewContent},
+		       RATE = #{rate} 
+		 WHERE
+		       REVIEW_NO = #{reviewNo}
+	</update>
+	
+	<update id="updateReviewAttachment" parameterType="reviewAttachment">
+		UPDATE
+			   REVIEW_ATTACHMENT
+		   SET 
+		       ORIGIN_NAME = #{originName},
+		       CHANGE_NAME = #{changeName},
+		       FILE_PATH = #{filePath},
+		       STATUS='Y' 
+		 WHERE
+		       FILE_NO = #{fileNo}
+	</update>
+	
+	<insert id="insertNewReviewAttachment" parameterType="reviewAttachment">
+		INSERT 
+		  INTO 
+		       REVIEW_ATTACHMENT
+		       (
+		       FILE_NO,
+		       REVIEW_NO,
+		       ORIGIN_NAME,
+		       CHANGE_NAME,
+		       FILE_PATH
+		       )
+		VALUES 
+			   (
+			   SEQ_RANO.NEXTVAL,
+			   #{reviewNo},
+			   #{originName},
+			   #{changeName},
+			   #{filePath}
+			   )
+	</insert>
+	
+	<update id="deleteReviewAttachment" parameterType="reviewAttachment">
+		UPDATE 
+			   REVIEW_ATTACHMENT 
+		   SET 
+		       STATUS = 'N' 
+		 WHERE 
+		       FILE_NO = #{fileNo}
+	</update>
+	
+	<update id="deleteReview" parameterType="_int">
+		UPDATE
+			   REVIEW
+		   SET
+		       STATUS = 'N'
+		 WHERE
+		       REVIEW_NO = #{reviewNo}
+	</update>
+	
+	<select id="selectReplyList" parameterType="_int" resultMap="replyResultSet">
+		SELECT
+			   REPLY_NO,
+			   NICKNAME,
+			   REPLY_CONTENT,
+			   REPLY_DATE 
+		  FROM 
+		  	   REPLY R
+		  JOIN
+		       MEMBER ON (REPLY_WRITER = USER_NO)
+		 WHERE 
+		 	   REVIEW_NO = #{reviewNo}
+		   AND
+		       R.STATUS IN ('Y', 'R')
+	  ORDER BY
+	           REPLY_DATE
+	</select>
+	
+	<insert id="insertReply" parameterType="reply">
+		INSERT 
+		  INTO 
+		       REPLY
+		       (
+		       REPLY_NO,
+		       REVIEW_NO,
+		       REPLY_WRITER,
+		       REPLY_CONTENT
+		       )
+		VALUES 
+			   (
+			   SEQ_RRNO.NEXTVAL,
+			   #{reviewNo},
+			   #{replyWriter},
+			   #{replyContent}
+			   )
+	</insert>
+	
+	<update id="updateReply" parameterType="reply">
+		UPDATE 
+			   REPLY 
+		   SET 
+			   REPLY_CONTENT = #{replyContent} 
+		 WHERE 
+		 	   REPLY_NO = #{replyNo}
+	</update>
+	
+	<update id="deleteReply" parameterType="_int">
+		UPDATE
+			   REPLY 
+		   SET
+			   STATUS = 'N' 
+		 WHERE 
+		 	   REPLY_NO = #{replyNo}
+	</update>
+	
+	<select id="selectReportCount" parameterType="rv_report" resultType="_int">
+		SELECT
+		  	   COUNT(*) COUNT
+		  FROM
+		       REPORT
+		 WHERE
+		       REPLY_NO = #{replyNo}
+		   AND
+		       REPLY_REPORTER = #{replyReporter}
+	</select>
+	
+	<insert id="insertReport" parameterType="rv_report">
+		INSERT 
+		  INTO 
+		       REPORT
+		       (
+		       REPLY_NO,
+		       REPLY_REPORTER
+		       ) 
+		VALUES 
+		       (
+		       #{replyNo},
+		       #{replyReporter}
+		       )
+	</insert>
+
+	<update id="updateReplyStatusR" parameterType="rv_report">
+		UPDATE 
+			   REPLY 
+		   SET 
+			   STATUS = 'R' 
+		 WHERE 
+			   REPLY_NO = #{replyNo}
+	</update>
+	
+</mapper>
