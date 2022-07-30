@@ -17,7 +17,7 @@
 		<result column="REVIEW_IMG" property="reviewImg" />
 	</resultMap>
 	
-	<resultMap id="supportResultSet" type="rv_support">
+	<resultMap id="supportResultSet" type="support">
 		<result column="SUPPORT_NO" property="supportNo" />
 		<result column="PROJECT_NO" property="projectNo" />
 		<result column="SUPPORT_DATE" property="supportDate" />
@@ -310,7 +310,7 @@
 		 	   REPLY_NO = #{replyNo}
 	</update>
 	
-	<select id="selectReportCount" parameterType="rv_report" resultType="_int">
+	<select id="selectReportCount" parameterType="report" resultType="_int">
 		SELECT
 		  	   COUNT(*) COUNT
 		  FROM
@@ -321,7 +321,7 @@
 		       REPLY_REPORTER = #{replyReporter}
 	</select>
 	
-	<insert id="insertReport" parameterType="rv_report">
+	<insert id="insertReport" parameterType="report">
 		INSERT 
 		  INTO 
 		       REPORT
@@ -336,7 +336,7 @@
 		       )
 	</insert>
 
-	<update id="updateReplyStatusR" parameterType="rv_report">
+	<update id="updateReplyStatusR" parameterType="report">
 		UPDATE 
 			   REPLY 
 		   SET 

@@ -7,10 +7,10 @@
 	</settings>
 	
 	<typeAliases>
-		<typeAlias type="com.kh.wefund.admin.adminSales.model.vo.Sales" alias="sales" />
+		<typeAlias type="com.kh.wefund.admin.model.vo.Sales" alias="sales" />
 		<typeAlias type="com.kh.wefund.category.model.vo.Category" alias="Category" />
 		<typeAlias type="com.kh.wefund.member.model.vo.Member" alias="member" />
-		<typeAlias type="com.kh.wefund.mypage.model.vo.Likes" alias="likes" />
+		<typeAlias type="com.kh.wefund.myPage.model.vo.Likes" alias="likes" />
 		<typeAlias type="com.kh.wefund.notice.model.vo.Notice" alias="notice" />
 		<typeAlias type="com.kh.wefund.project.model.vo.Product" alias="product" />
 		<typeAlias type="com.kh.wefund.project.model.vo.Project" alias="project" />

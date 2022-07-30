@@ -4,47 +4,5 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   <mapper namespace="adminSalesMapper">
   
-  	<resultMap type="adminSales" id="SalesResultSet">
-		<result column="SUMA" property="sumPayment"/>
-		<result column="CATEGORY_NO" property="categoryNo"/>
-		<result column="CATEGORY_NAME" property="categoryName"/>
-		<result column="MSUM" property="samMonthPayment"/>
-		<result column="YEAR_AND_MONTH" property="yrarAndMonth"/>
-	</resultMap>
-	
-	<select id="monthlyCategorySalesList" resultMap="SalesResultSet" parameterType="string">
-        SELECT SUM(A)SUMA, CATEGORY_NAME,CATEGORY_NO
-          FROM (SELECT *
-                  FROM (SELECT * 
-                          FROM PROJECT
-                          JOIN (SELECT PROJECT_NO, SUM(PAYMENT) A
-                                  FROM SUPPORT 
-                                 GROUP BY PROJECT_NO)	
-                                 USING (PROJECT_NO)) 	
-                 WHERE GOAL_AMOUNT <![CDATA[ <= ]]> A 	
-                   AND STATUS = 'E'
-                   AND SUBSTR(END_DATE, 1, 5) LIKE '%' || #{str} || '%')
-         GROUP BY CATEGORY_NAME, CATEGORY_NO			
-         ORDER BY CATEGORY_NO ASC							
-	</select>
-	
-	<select id="monthlySales" resultMap="SalesResultSet" parameterType="string">
-	    SELECT SUM(SUMA)MSUM, SUBSTR(E_D, 1, 5)YEAR_AND_MONTH
-	      FROM (SELECT SUM(A)SUMA,END_DATE E_D
-	              FROM (SELECT *
-	                      FROM (SELECT * 
-	                              FROM PROJECT
-	                              JOIN (SELECT PROJECT_NO, SUM(PAYMENT) A
-	                                      FROM SUPPORT 
-	                                     GROUP BY PROJECT_NO) USING(PROJECT_NO))
-	              		 WHERE GOAL_AMOUNT <![CDATA[ <= ]]> A 
-	                       AND STATUS = 'E'
-	                       AND SUBSTR(END_DATE, 1, 5)
-	                       NOT LIKE '%' || #{str} || '%')  
-	                     GROUP BY CATEGORY_NAME, END_DATE                           
-	                     ORDER BY END_DATE DESC)
-	     GROUP BY SUBSTR(E_D, 1, 5)                  
-	     ORDER BY YEAR_AND_MONTH DESC  
-	</select>
   
   </mapper>
