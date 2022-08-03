@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kh.wefund.common.model.vo.PageInfo;
+import com.kh.wefund.project.model.vo.Support;
 import com.kh.wefund.review.model.dao.ReviewDao;
 import com.kh.wefund.review.model.vo.Reply;
 import com.kh.wefund.review.model.vo.Report;
 import com.kh.wefund.review.model.vo.Review;
 import com.kh.wefund.review.model.vo.ReviewAttachment;
-import com.kh.wefund.review.model.vo.Support;
 
 @Service
 public class ReviewService {
