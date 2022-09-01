@@ -179,10 +179,10 @@
 	                    <a href="list.rv">리뷰게시판</a>&nbsp;&nbsp;&nbsp;| &nbsp;
 	                    <a href="">프로젝트 업로드</a>&nbsp;&nbsp;&nbsp;
 	                    
-	                    <a href="">
+	                    <a href="myPage.me?userNo=${loginUser.userNo}">
 	                    <img src="./resources/img/user.png" id="userImg" style="width: 15px; height:15px;">&nbsp;
 	                    ${loginUser.nickname} 님</a>&nbsp;&nbsp;&nbsp;
-	                    <a href="">로그아웃</a>
+	                    <a href="logout.me">로그아웃</a>
 	                </div>
 	            </div>
             </c:if>

@@ -1,4 +1,309 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="myPageMapper">
+
+	<resultMap type="member" id="memberResultSet">
+		<result column="USER_NO" property="userNo"/>
+		<result column="USER_ID" property="userId"/>
+		<result column="USER_PWD" property="userPwd"/>
+		<result column="USER_NAME" property="userName"/>
+		<result column="NICKNAME" property="nickname"/>
+		<result column="PHONE" property="phone"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="MODIFY_DATE" property="modifyDate"/>
+		<result column="STATUS" property="status"/>
+	</resultMap>
+	
+	<resultMap type="project" id="projectResultSet">
+		<result column="PROJECT_NO" property="projectNo"/>
+		<result column="PROJECT_CREATOR" property="projectCreator"/>
+		<result column="PROJECT_NAME" property="projectName"/>
+		<result column="CATEGORY_NO" property="categoryNo"/>
+		<result column="CATEGORY_NAME" property="categoryName"/>
+		<result column="START_DATE" property="startDate"/>
+		<result column="END_DATE" property="endDate"/>
+		<result column="GOAL_AMOUNT" property="goalAmount"/>
+		<result column="BANK" property="bank"/>
+		<result column="ACCOUNT_NO" property="accountNo"/>
+		<result column="ACCOUNT_NAME" property="accountName"/>
+		<result column="PROJECT_CONTENT" property="projectContent"/>
+		<result column="COUNT" property="count"/>
+		<result column="APPLY_DATE" property="applyDate"/>
+		<result column="STATUS" property="status"/>
+		<result column="TITLEIMG" property="titleImg"/>
+		<result column="PAYMENTSUM" property="paymentSum"/>
+	</resultMap>
+	
+	<resultMap id="reviewResultSet" type="review">
+		<result column="REVIEW_NO" property="reviewNo" />
+		<result column="NICKNAME" property="reviewWriter" />
+		<result column="SUPPORT_NO" property="supportNo" />
+		<result column="REVIEW_TITLE" property="reviewTitle" />
+		<result column="REVIEW_CONTENT" property="reviewContent" />
+		<result column="RATE" property="rate" />
+		<result column="COUNT" property="count" />
+		<result column="REVIEW_DATE" property="reviewDate" />
+		<result column="PROJECT_NO" property="projectNo" />
+		<result column="PROJECT_NAME" property="projectName" />
+		<result column="PROJECT_THUMBNAIL" property="projectThumbnail" />
+		<result column="REVIEW_IMG" property="reviewImg" />
+		<result column="TITLEIMG" property="titleImg" />
+	</resultMap>
+	
+	<resultMap id="supportResultSet" type="support" >
+		<result column="SUPPORT_NO" property="supportNo" />
+		<result column="USER_NO" property="userNo" />
+		<result column="PROJECT_NO" property="projectNo" />
+		<result column="PRODUCT" property="product" />
+		<result column="PAYMENT" property="payment" />
+		<result column="SUPPORT_DATE" property="supportDate" />
+		<result column="STATUS" property="status" />
+		<result column="TITLEIMG" property="titleImg" />
+		<result column="PROJECT_NAME" property="projectName" />
+		<result column="CATEGORY_NAME" property="categoryName" />
+		<result column="PJSTATUS" property="pjStatus" />
+	
+	</resultMap>
+  
+  <select id="selectLikeListCount" parameterType="_int" resultType="_int">
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			LIKES
+	 WHERE 
+			USER_NO = #{userNo}
+  </select>
+  
+  <select id="selectSupportListCount" parameterType="_int" resultType="_int">
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			SUPPORT
+	 WHERE 
+	 		USER_NO = #{userNo}
+  </select>
+  
+  <select id="selectProjectListCount" parameterType="_int" resultType="_int">
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			PROJECT
+	 WHERE 
+	 		PROJECT_CREATOR = #{userNo}
+  </select>
+  
+  <select id="selectMyReviewListCount" parameterType="_int" resultType="_int">
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			REVIEW
+	 WHERE 
+	 		REVIEW_WRITER = #{userNo}
+  </select>
+  
+  <select id="selectLikeCount" parameterType="hashmap" resultType="_int">
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			LIKES
+	  JOIN 
+	  		PROJECT P USING (PROJECT_NO)
+	  JOIN 
+            MEMBER USING (USER_NO)
+	 WHERE 
+			USER_ID = #{userId}
+	<if test="select == 'all'">
+	   AND  P.STATUS IN('Y', 'E')
+	</if>
+	<if test="select == 'funding'">
+	   AND	P.STATUS = 'Y'
+	</if>
+	<if test="select == 'end'">
+	   AND	P.STATUS = 'E'
+	</if>
+  </select>
+  
+  <select id="selectSupportCount" parameterType="support" resultType="_int">
+  
+  	SELECT 
+			COUNT(*) COUNT
+	  FROM 
+			SUPPORT
+	 WHERE 
+	 		USER_NO = #{userNo}
+	 <choose>
+	 	<when test="#{status} == 'end'">
+		   AND	
+		   		STATUS = 'Y'
+	 	</when>
+	 	<when test="#{status} == 'reserve'">
+	 	   AND	
+		   		STATUS = 'N'
+	 	</when>
+	 	<when test="#{status} == 'fail'">
+	 	   AND	
+		   		STATUS = 'F'
+	 	</when>
+	 	<otherwise>
+	 	   AND 	STATUS IN('Y', 'N', 'F')
+	 	</otherwise>
+ 	</choose>
+  </select>
+  
+  <update id="updateMember">
+  	UPDATE 
+  			MEMBER
+	   SET  
+	   		NICKNAME = #{nickname},
+		    PHONE = #{phone},
+		    MODIFY_DATE = SYSDATE
+	 WHERE  
+	 		USER_ID = #{userId}
+	   AND  
+	   		STATUS = 'Y' 
+  </update>
+  
+  <select id="selectMember" parameterType="member" resultMap="memberResultSet">
+  	SELECT 
+				USER_NO,
+				USER_ID,
+				USER_PWD,
+				USER_NAME,
+				NICKNAME,
+				PHONE,
+				ENROLL_DATE,
+				MODIFY_DATE,
+				STATUS
+			FROM
+				MEMBER
+		   WHERE
+		   		USER_ID = #{userId}
+		   	 AND
+		   		USER_NO = #{userNo}
+		   	 AND
+		   		STATUS = 'Y'
+  </select>
+  
+  <update id="deletMember" parameterType="string">
+  	UPDATE 
+  			MEMBER
+	   SET 
+	   		STATUS = 'N',
+	        MODIFY_DATE = SYSDATE
+	 WHERE 
+	 		USER_ID = #{userId}
+  </update>
+  
+  <select id="selectLikeList" parameterType="_int" resultMap="projectResultSet">
+  	SELECT 
+  			CATEGORY_NAME, 
+  			PROJECT_NO, 
+  			P.STATUS, 
+  			PROJECT_NAME, 
+  			END_DATE, 
+  			FILE_PATH||CHANGE_NAME TITLEIMG
+	  FROM  
+	  		PROJECT P
+	  JOIN 
+	  		LIKES USING (PROJECT_NO)
+	  JOIN  
+	  		PROJECT_ATTACHMENT USING (PROJECT_NO)
+	 WHERE 
+	 		USER_NO = #{userNo}
+	   AND  
+	   		P.STATUS IN('Y', 'E')
+	   AND 
+	   		FILE_LEVEL = 1
+     ORDER 
+        BY  LIKE_DATE DESC
+  </select>
+  
+  <select id="selectedLike" parameterType="hashmap" resultMap="projectResultSet">
+  	SELECT 
+  			CATEGORY_NAME, 
+  			PROJECT_NO, 
+  			P.STATUS, 
+  			PROJECT_NAME, 
+  			END_DATE, 
+  			FILE_PATH||CHANGE_NAME TITLEIMG
+	  FROM  
+	  		PROJECT P
+	  JOIN 
+	  		LIKES USING (PROJECT_NO)
+	  JOIN
+	  		MEMBER USING (USER_NO)
+	  JOIN  
+	  		PROJECT_ATTACHMENT USING (PROJECT_NO)
+	 WHERE 
+	 		USER_ID = #{userId}
+	 <choose>
+	 	<when test="select == 'all'">
+		   AND  
+		   		P.STATUS IN('Y', 'E')
+	 	</when>
+	 	<when test="select == 'funding'">
+	 		AND  
+		   		P.STATUS = 'Y'
+	 	</when>
+	 	<otherwise>
+	 		AND  
+		   		P.STATUS = 'E'
+	 	</otherwise>
+	 </choose>
+	   AND 
+	   		FILE_LEVEL = 1
+     ORDER 
+        BY  LIKE_DATE DESC
+  </select>
+  
+  <select id="selectMyReviewList" parameterType="_int" resultMap="reviewResultSet">
+  
+  	SELECT 
+  			REVIEW_NO, 
+  			PROJECT_NO, 
+  			SUPPORT_NO, 
+  			REVIEW_TITLE, 
+  			REVIEW_WRITER, 
+  			NICKNAME, 
+  			TO_CHAR(REVIEW_DATE, 'YYYY-MM-DD') AS REVIEW_DATE, 
+            FILE_PATH||CHANGE_NAME TITLEIMG
+     FROM 	
+     		REVIEW R
+     JOIN 	MEMBER ON (REVIEW_WRITER = USER_NO)
+     JOIN 	SUPPORT S USING(SUPPORT_NO)
+     JOIN 	PROJECT_ATTACHMENT USING(PROJECT_NO)
+    WHERE 	
+    		REVIEW_WRITER = #{userNo}
+      AND 	
+      		R.STATUS = 'Y'
+      AND 
+      		FILE_LEVEL = 1
+    ORDER 
+       BY 	REVIEW_DATE DESC
+  
+  </select>
+  
+  <select id="selectMySupportList" parameterType="support" resultMap="supportResultSet">
+  	SELECT 
+  			SUPPORT_NO,
+  			PROJECT_NO, 
+  			CATEGORY_NAME, 
+  			PROJECT_NAME, 
+  			P.STATUS PJSTATUS, 
+  			S.STATUS STATUS,
+  			TO_CHAR(SUPPORT_DATE, 'YYYY-MM-DD') AS SUPPORT_DATE,
+  			FILE_PATH||CHANGE_NAME TITLEIMG                   
+      FROM 
+      		SUPPORT S
+      JOIN  PROJECT P USING (PROJECT_NO)
+      JOIN  PROJECT_ATTACHMENT USING(PROJECT_NO)
+     WHERE 
+     		USER_NO = #{userNo}
+       AND  P.STATUS IN('Y', 'E')
+       and  s.status in('Y', 'N', 'F')
+       AND  FILE_LEVEL = 1
+     ORDER  BY SUPPORT_DATE DESC
+  </select>
+  
+
 </mapper>

@@ -3,20 +3,6 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="adminReviewMapper">
-	<resultMap id="reviewResultSet" type="review">
-		<result column="REVIEW_NO" property="reviewNo" />
-		<result column="NICKNAME" property="reviewWriter" />
-		<result column="SUPPORT_NO" property="supportNo" />
-		<result column="REVIEW_TITLE" property="reviewTitle" />
-		<result column="REVIEW_CONTENT" property="reviewContent" />
-		<result column="RATE" property="rate" />
-		<result column="COUNT" property="count" />
-		<result column="REVIEW_DATE" property="reviewDate" />
-		<result column="PROJECT_NO" property="projectNo" />
-		<result column="PROJECT_NAME" property="projectName" />
-		<result column="PROJECT_THUMBNAIL" property="projectThumbnail" />
-		<result column="REVIEW_IMG" property="reviewImg" />
-	</resultMap>
 
 
   
